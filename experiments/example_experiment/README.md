@@ -47,6 +47,9 @@ This simple experiment demonstrates:
 1. What does the `print()` function do?
 2. Can you modify the program to print a different message?
 3. What happens if you forget the quotation marks?
+4. Why do we use `if __name__ == "__main__":` in the code?
+5. How would you modify this program to print multiple lines?
+6. Can you think of a real-world application where a simple output program like this would be useful?
 
 ## Additional Resources
 - [Python Official Documentation](https://docs.python.org/)

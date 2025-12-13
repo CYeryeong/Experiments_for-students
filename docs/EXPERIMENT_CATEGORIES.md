@@ -89,3 +89,5 @@ experiments/
       ├── bubble_sort/
       └── binary_search/
 ```
+
+Note: Use consistent naming with underscores for multi-word directory names (e.g., `programming_fundamentals`, `data_structures`).
