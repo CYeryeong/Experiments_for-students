@@ -1,4 +1,4 @@
-%%writefile /content/Experiments_for-students/nyiso_eia.py
+# %%writefile /content/Experiments_for-students/nyiso_eia.py
 # nyiso_eia.py
 import io
 import os
