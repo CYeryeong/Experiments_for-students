@@ -1,4 +1,3 @@
-# %%writefile /content/Experiments_for-students/nyiso_eia.py
 # nyiso_eia.py
 import io
 import os
@@ -153,9 +152,20 @@ def build_merged(power: pd.DataFrame, temp: pd.DataFrame, solar: pd.DataFrame) -
              .sort_values("datetime")
              .reset_index(drop=True)
     )
-    merged["datetime"] = pd.to_datetime(merged["datetime"], errors="coerce")
-    merged = merged.sort_values("datetime").reset_index(drop=True)
+
+    # ✅ dtype 강제 보장
+    merged["datetime"] = pd.to_datetime(merged["datetime"], errors="raise")
     return merged
+
+
+def read_merged_csv(path: str, encoding: str = "utf-8-sig") -> pd.DataFrame:
+    """
+    integrated_merged.csv를 다시 읽을 때 datetime이 object가 되는 문제 방지.
+    """
+    df = pd.read_csv(path, encoding=encoding, parse_dates=["datetime"])
+    # 혹시라도 parse 실패한 값이 있으면 여기서 잡힘(원하면 errors="coerce"로 바꿔도 됨)
+    df["datetime"] = pd.to_datetime(df["datetime"], errors="raise")
+    return df
 
 
 # ============================
@@ -175,6 +185,7 @@ def run_on_import(
     out_filename: str = "integrated_merged.csv",
     out_encoding: str = "utf-8-sig",
     seed: int | None = 42,
+    reload_csv: bool = False,   # ✅ 추가: 저장 후 다시 읽어 반환할지
 ):
     if out_dir is None:
         out_dir = _default_out_dir()
@@ -182,13 +193,17 @@ def run_on_import(
     # 1) 메모리에서만 power/temp/solar 생성
     power, temp, solar = make_power_temp_solar_frames(url=url, start=start, end=end, seed=seed)
 
-    # 2) 메모리에서 merge 생성
+    # 2) 메모리에서 merge 생성 (이 merged는 datetime64[ns]가 정상)
     merged = build_merged(power, temp, solar)
 
     # 3) 최종 파일만 저장
     os.makedirs(out_dir, exist_ok=True)
     out_path = os.path.join(out_dir, out_filename)
     merged.to_csv(out_path, index=False, encoding=out_encoding)
+
+    # ✅ 저장한 걸 다시 읽어 쓰는 흐름이면 여기서 datetime 보장해서 반환
+    if reload_csv:
+        return read_merged_csv(out_path, encoding=out_encoding)
 
     return merged
 
