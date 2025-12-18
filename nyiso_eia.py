@@ -153,6 +153,8 @@ def build_merged(power: pd.DataFrame, temp: pd.DataFrame, solar: pd.DataFrame) -
              .sort_values("datetime")
              .reset_index(drop=True)
     )
+    merged["datetime"] = pd.to_datetime(merged["datetime"], errors="coerce")
+    merged = merged.sort_values("datetime").reset_index(drop=True)
     return merged
 
 
